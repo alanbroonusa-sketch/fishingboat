@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { fishingSpots } from './data';
 import { Anchor, Waves, Wind, MapPin } from 'lucide-react';
+import LocationMapSVG from './LocationMapSVG';
 
 const LandingPage = () => {
   return (
@@ -99,12 +100,15 @@ const LandingPage = () => {
                 to={`/dashboard/${spot.id}`}
                 className="group relative overflow-hidden rounded-2xl card-hover"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-ocean-950 via-ocean-900/80 to-transparent z-10" />
-                <img
-                  src={spot.image}
-                  alt={spot.name}
-                  className="w-full h-80 object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
+                {/* Mapa SVG personalizado como fondo */}
+                <div className="absolute inset-0 bg-gradient-to-t from-ocean-950 via-ocean-900/60 to-transparent z-10" />
+                <div className="w-full h-80 bg-ocean-800">
+                  <LocationMapSVG 
+                    lat={spot.lat} 
+                    lng={spot.lng} 
+                    spotName={spot.name} 
+                  />
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
                   <div className="flex items-center gap-2 text-sand-400 mb-2">
                     <MapPin className="w-4 h-4" />
