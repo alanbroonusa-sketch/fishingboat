@@ -42,17 +42,43 @@ export const fishingSpots = [
   }
 ];
 
-// Función para obtener datos climáticos simulados (en producción se conectaría a APIs reales)
+// URL del backend (cambiar a produccion cuando sea necesario)
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
+// Funcion para obtener datos climáticos desde el backend con NVIDIA FourCastNet
 export const fetchWeatherData = async (spotId, lat, lng) => {
-  // Simulación de datos - en producción esto vendría de APIs como:
-  // - Open-Meteo (sin API key requerida)
-  // - Stormglass (gratis hasta cierto límite)
-  // - NOAA (datos gratuitos)
-  
+  try {
+    // Intentar obtener datos del backend que usa NVIDIA FourCastNet
+    const response = await fetch(`${BACKEND_URL}/api/weather?lat=${lat}&lng=${lng}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Generar pronostico por horas
+    const forecastResponse = await fetch(`${BACKEND_URL}/api/forecast?lat=${lat}&lng=${lng}&hours=24`);
+    if (forecastResponse.ok) {
+      data.forecast = await forecastResponse.json();
+    }
+    
+    console.log('✅ Datos obtenidos del backend:', data.spotId);
+    return data;
+  } catch (error) {
+    console.warn('⚠️  Error conectando al backend, usando datos simulados:', error.message);
+    
+    // Fallback a datos simulados si el backend no esta disponible
+    return getSimulatedWeatherData(spotId, lat, lng);
+  }
+};
+
+// Funcion para obtener datos simulados (fallback)
+const getSimulatedWeatherData = (spotId, lat, lng) => {
   const now = new Date();
   const hour = now.getHours();
   
-  // Generar datos realistas basados en la ubicación
+  // Generar datos realistas basados en la ubicacion
   const baseTemp = 22 + (lat - 24) * 2; // Temperatura base ajustada por latitud
   const baseWind = 8 + Math.random() * 12;
   const baseWave = 2 + Math.random() * 4;
