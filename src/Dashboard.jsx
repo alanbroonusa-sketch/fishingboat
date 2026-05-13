@@ -226,8 +226,8 @@ const Dashboard = () => {
 
           {/* Hourly Forecast Chart */}
           <DetailCard title="Pronóstico por Hora (Próximas 24h)" icon={<Clock className="w-5 h-5" />}>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64" style={{ minHeight: '256px' }}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
                 <LineChart data={weatherData.forecast}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis 
@@ -273,8 +273,8 @@ const Dashboard = () => {
 
           {/* Rain Probability */}
           <DetailCard title="Probabilidad de Lluvia" icon={<Droplets className="w-5 h-5" />}>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-48" style={{ minHeight: '192px' }}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={192}>
                 <BarChart data={weatherData.forecast.filter((_, i) => i % 2 === 0)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis 
