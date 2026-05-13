@@ -16,9 +16,13 @@ app.use(express.json());
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
 const NVIDIA_FOURCASTNET_URL = process.env.NVIDIA_FOURCASTNET_URL || 'https://ai.api.nvidia.com/v1/cv/nvidia/fourcastnet';
 
-if (!NVIDIA_API_KEY) {
-  console.warn('⚠️  ADVERTENCIA: NVIDIA_API_KEY no esta configurada en el archivo .env');
-  console.warn('   Las llamadas a la API de NVIDIA fallaran hasta que configures tu API key.');
+// Verificar si la API key esta configurada correctamente
+const isNvidiaConfigured = NVIDIA_API_KEY && NVIDIA_API_KEY !== 'tu_api_key_aqui' && NVIDIA_API_KEY.length > 10;
+
+if (!isNvidiaConfigured) {
+  console.log('ℹ️  INFO: NVIDIA API Key no configurada o invalida');
+  console.log('   El servidor usara datos simulados para todas las peticiones.');
+  console.log('   Para usar NVIDIA FourCastNet, configura NVIDIA_API_KEY en el archivo .env');
 }
 
 /**
@@ -31,6 +35,11 @@ app.get('/api/weather', async (req, res) => {
 
   if (!lat || !lng) {
     return res.status(400).json({ error: 'Se requieren los parametros lat y lng' });
+  }
+
+  // Si NVIDIA no esta configurado, devolver datos simulados directamente
+  if (!isNvidiaConfigured) {
+    return res.json(await getSimulatedWeatherData(lat, lng));
   }
 
   try {
@@ -89,6 +98,11 @@ app.get('/api/forecast', async (req, res) => {
 
   if (!lat || !lng) {
     return res.status(400).json({ error: 'Se requieren los parametros lat y lng' });
+  }
+
+  // Si NVIDIA no esta configurado, devolver datos simulados directamente
+  if (!isNvidiaConfigured) {
+    return res.json(getSimulatedForecastData(parseInt(hours)));
   }
 
   try {
@@ -289,7 +303,10 @@ app.listen(PORT, () => {
   console.log(`📊 Endpoint de pronostico: http://localhost:${PORT}/api/forecast`);
   console.log(`❤️  Health check: http://localhost:${PORT}/api/health`);
   console.log('');
-  console.log('🔑 NVIDIA API Key configurada:', !!NVIDIA_API_KEY && NVIDIA_API_KEY !== 'tu_api_key_aqui' ? '✅ SI' : '❌ NO');
+  console.log('🔑 NVIDIA API Key configurada:', isNvidiaConfigured ? '✅ SI' : '❌ NO');
+  if (!isNvidiaConfigured) {
+    console.log('   ℹ️  El servidor funcionara con datos simulados.');
+  }
   console.log('');
   console.log('⚠️  IMPORTANTE:');
   console.log('   1. Edita el archivo .env y agrega tu API key de NVIDIA');
